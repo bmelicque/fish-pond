@@ -7,41 +7,39 @@
 
 	type Props = {
 		fish: Fish;
+		obstacles: Vec2[];
 	};
 
-	let { fish }: Props = $props();
+	let { fish, obstacles }: Props = $props();
 
 	const chunks: Chunk[] = $derived(fish.chunks);
 
-	let lastTime: number | undefined = undefined;
 	function animate(time: number) {
-		if (lastTime === undefined) {
-			lastTime = time;
+		if (fish.time === undefined) {
+			fish.time = time;
 			requestAnimationFrame(animate);
 		}
-		const delta = time - lastTime;
-		lastTime = time;
-		const speed = 0.01;
+		fish.time = time;
 		const height = (innerHeight / innerWidth) * 100;
-		fish.move(new Vec2(100, height), delta * speed);
+		fish.move(new Vec2(100, height), obstacles);
 		requestAnimationFrame(animate);
 	}
 	animate(0);
 </script>
 
 <g>
-	<CaudalFin {chunks} />
-	<Fin {chunks} at={3} side={-1} length={1.5 * NODE_DIST} />
-	<Fin {chunks} at={3} side={1} length={1.5 * NODE_DIST} />
-	<Fin {chunks} at={9} side={-1} length={NODE_DIST} />
-	<Fin {chunks} at={9} side={1} length={NODE_DIST} />
-	<path d={fish.getBodyPath()}> </path>
-	<DorsalFin {chunks} />
+	<CaudalFin {fish} />
+	<Fin {fish} at={3} side={-1} length={1.5 * NODE_DIST} />
+	<Fin {fish} at={3} side={1} length={1.5 * NODE_DIST} />
+	<Fin {fish} at={9} side={-1} length={NODE_DIST} />
+	<Fin {fish} at={9} side={1} length={NODE_DIST} />
+	<path d={fish.getBodyPath()} fill={fish.color}> </path>
+	<DorsalFin {fish} />
 </g>
 
 <style>
 	path {
-		fill: #ffa69e;
+		/* fill: #ffa69e; */
 		z-index: 1;
 	}
 </style>

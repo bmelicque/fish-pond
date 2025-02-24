@@ -1,5 +1,12 @@
 <script lang="ts">
-	let { chunks } = $props();
+	import type { Fish } from "./Fish.svelte";
+
+	type Props = {
+		fish: Fish;
+	};
+
+	let { fish }: Props = $props();
+	const chunks = $derived(fish.chunks);
 
 	function getPath() {
 		const start = chunks[5].position;
@@ -11,12 +18,11 @@
 	}
 </script>
 
-<path d={getPath()} />
+<path d={getPath()} stroke={fish.color} fill={fish.color} />
 
 <style>
 	path {
 		stroke-width: 0.1;
-		stroke: white;
-		fill: white;
+		filter: brightness(200%);
 	}
 </style>

@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { untrack } from "svelte";
 	import Vec2 from "./Vec2.svelte";
-	import { Chunk, NODE_DIST } from "./Fish.svelte";
+	import { Chunk, Fish, NODE_DIST } from "./Fish.svelte";
 
 	type Props = {
-		chunks: Chunk[];
+		fish: Fish;
 	};
 
-	let { chunks }: Props = $props();
+	let { fish }: Props = $props();
+	const chunks = $derived(fish.chunks);
 
 	function getCurvature(chunks: Chunk[]) {
 		const orientations = new Array<Vec2>(chunks.length - 1);
@@ -41,12 +42,11 @@
 	}
 </script>
 
-<path d={getPath()} />
+<path d={getPath()} stroke={fish.color} fill={fish.color} />
 
 <style>
 	path {
 		stroke-width: 0.1;
-		stroke: white;
-		fill: white;
+		filter: brightness(200%);
 	}
 </style>

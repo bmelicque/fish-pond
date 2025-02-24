@@ -1,7 +1,7 @@
 import { untrack } from "svelte";
 import Vec2 from "./Vec2.svelte";
 
-export const NODE_DIST = 0.5;
+export const NODE_DIST = 0.3;
 const RADII = [1.36, 1.68, 1.74, 1.7, 1.66, 1.54, 1.28, 1.2, 1.02, 0.76, 0.68, 0.64, 0.38, 0.3, 0];
 
 export class Chunk {
@@ -21,16 +21,36 @@ const APPROACH_RADIUS = 2 * DODGE_RADIUS;
 
 const DODGE_FACTOR = 2;
 
+const COLORS = ["#ffa69e", "#89a8b2", "#727d73"];
+
 export class Fish {
 	private static elements: Fish[] = [];
 
 	readonly chunks: Chunk[];
-	readonly speed: number;
+	readonly speed: number = (NODE_DIST * RADII.length) / 1000;
 
-	constructor(position: Vec2) {
-		this.chunks = RADII.map((r, i) => new Chunk(r * NODE_DIST, new Vec2(-i + position.x, -i + position.y)));
-		this.speed = RADII.length * NODE_DIST;
+	readonly color: string;
+
+	#time: number | undefined;
+	#delta: number = 0;
+
+	constructor(position: Vec2, orientation: Vec2) {
+		orientation.reverse().resize(NODE_DIST);
+		this.chunks = RADII.map(
+			(r, i) => new Chunk(r * NODE_DIST, new Vec2(position.x - i * orientation.x, position.y - i * orientation.y))
+		);
+		this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
 		Fish.elements.push(this);
+	}
+
+	get time() {
+		return this.#time;
+	}
+
+	set time(t) {
+		if (t === undefined) return;
+		if (this.#time) this.#delta = t - this.#time;
+		this.#time = t;
 	}
 
 	get position() {
@@ -117,7 +137,8 @@ export class Fish {
 		return path;
 	}
 
-	move(maxPosition: Vec2, distance: number) {
+	move(maxPosition: Vec2, obstacles: Vec2[]) {
+		const distance = this.#delta * this.speed;
 		const target = this.direction;
 		if (this.position.y < DODGE_RADIUS) {
 			target.add(0, distance);
@@ -131,6 +152,14 @@ export class Fish {
 		if (this.position.x > maxPosition.x - DODGE_RADIUS) {
 			target.add(-distance, 0);
 		}
+
+		for (let obstacle of obstacles) {
+			const diff = Vec2.diff(obstacle, this.position);
+			if (diff.length < DODGE_RADIUS) {
+				target.add(diff.reverse().resize(DODGE_FACTOR * distance));
+			}
+		}
+
 		const neighbours = this.findNeighbours();
 		for (let i = 0; i < neighbours.length; i++) {
 			const neighbour = neighbours[i];

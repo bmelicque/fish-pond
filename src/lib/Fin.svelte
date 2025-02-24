@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { untrack } from "svelte";
 	import Vec2 from "./Vec2.svelte";
-	import { Chunk } from "./Fish.svelte";
+	import { Chunk, Fish } from "./Fish.svelte";
 
 	type Props = {
-		chunks: Chunk[];
+		fish: Fish;
 		/**
 		 * Chunk index at which the fin is located
 		 */
@@ -17,7 +17,8 @@
 		length: number;
 	};
 
-	const { chunks, at, side, length }: Props = $props();
+	const { fish, at, side, length }: Props = $props();
+	const chunks = $derived(fish.chunks);
 	const getFinAngle = () => {
 		const segmentOrientation = Vec2.diff(chunks[at - 3].position, chunks[at - 1].position);
 		return untrack(() => Vec2.angle(segmentOrientation, new Vec2(1)));
@@ -45,10 +46,11 @@
 	transform={`rotate(${(-finAngle * 180) / Math.PI - side * 30})`}
 	transform-origin="50% 50%"
 	style="transform-box: fill-box;"
+	fill={fish.color}
 />
 
 <style>
 	ellipse {
-		fill: white;
+		filter: brightness(200%);
 	}
 </style>

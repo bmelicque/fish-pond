@@ -3,41 +3,32 @@
 	import { Fish } from "./lib/Fish.svelte";
 	import Vec2 from "./lib/Vec2.svelte";
 
-	export let svgHeight = $state((innerHeight / innerWidth) * 100);
-	let viewBox = $derived(`0 0 100 ${svgHeight}`);
+	let svgHeight = $state((innerHeight / innerWidth) * 100);
+	const viewBox = $derived(`0 0 100 ${svgHeight}`);
+	addEventListener("resize", () => {
+		svgHeight = (innerHeight / innerWidth) * 100;
+	});
 
-	// TODO:
-	function resize() {}
+	let mouse = $state(new Vec2());
+	function handleMouse(e: MouseEvent) {
+		mouse.x = (e.x * 100) / innerWidth;
+		mouse.y = (e.y * 100) / innerWidth;
+	}
 
-	let fishes = $state([
-		new Fish(new Vec2(5, 5)),
-		new Fish(new Vec2(15, 5)),
-		new Fish(new Vec2(25, 5)),
-		new Fish(new Vec2(35, 5)),
-		new Fish(new Vec2(45, 5)),
-		new Fish(new Vec2(55, 5)),
-		new Fish(new Vec2(65, 5)),
-		new Fish(new Vec2(75, 5)),
-		new Fish(new Vec2(85, 5)),
-		new Fish(new Vec2(95, 5)),
+	function makeRandomFish() {
+		const position = new Vec2(Math.random() * 100, Math.random() * svgHeight);
+		const alpha = Math.random() * Math.PI * 2;
+		const orientation = new Vec2(Math.cos(alpha), Math.sin(alpha));
+		return new Fish(position, orientation);
+	}
 
-		new Fish(new Vec2(5, 25)),
-		new Fish(new Vec2(15, 25)),
-		new Fish(new Vec2(25, 25)),
-		new Fish(new Vec2(35, 25)),
-		new Fish(new Vec2(45, 25)),
-		new Fish(new Vec2(55, 25)),
-		new Fish(new Vec2(65, 25)),
-		new Fish(new Vec2(75, 25)),
-		new Fish(new Vec2(85, 25)),
-		new Fish(new Vec2(95, 25)),
-	]);
+	let fishes = $state(new Array(100).fill(0).map(makeRandomFish));
 </script>
 
 <main>
-	<svg id="svg" {viewBox} role="application">
+	<svg id="svg" {viewBox} role="application" onmousemove={handleMouse}>
 		{#each fishes as fish}
-			<FishElement {fish} />
+			<FishElement {fish} obstacles={[mouse]} />
 		{/each}
 	</svg>
 </main>
@@ -46,6 +37,5 @@
 	#svg {
 		width: 100vw;
 		height: 100vh;
-		border: 1px solid white;
 	}
 </style>
