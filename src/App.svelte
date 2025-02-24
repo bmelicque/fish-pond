@@ -1,7 +1,7 @@
 <script module lang="ts">
-	import FishElement from "./lib/FishElement.svelte";
-	import { Fish } from "./lib/Fish.svelte";
-	import Vec2 from "./lib/Vec2.svelte";
+	import { Fish } from "./lib/Fish";
+	import FishElement from "./lib/FishElement";
+	import Vec2 from "./lib/Vector2";
 
 	let svgHeight = $state((innerHeight / innerWidth) * 100);
 	const viewBox = $derived(`0 0 100 ${svgHeight}`);
@@ -15,32 +15,30 @@
 		mouse.y = (e.y * 100) / innerWidth;
 	}
 
-	function makeRandomFish() {
-		const position = new Vec2(Math.random() * 100, Math.random() * svgHeight);
-		const alpha = Math.random() * Math.PI * 2;
-		const orientation = new Vec2(Math.cos(alpha), Math.sin(alpha));
-		return new Fish(position, orientation);
-	}
-
-	let fishes = $state(new Array(30).fill(0).map(makeRandomFish));
-
-	function animate(time: number) {
-		const height = (innerHeight / innerWidth) * 100;
-		for (let fish of fishes) {
-			fish.time = time;
-			fish.move(new Vec2(100, height), [mouse]);
+	setTimeout(() => {
+		const fishes = new Array(30).fill(0).map(() => Fish.random());
+		const elements = fishes.map((fish) => new FishElement(fish));
+		for (let fish of elements) {
+			document.getElementById("svg")?.appendChild(fish.node);
 		}
-		requestAnimationFrame(animate);
-	}
-	animate(0);
+
+		function animate(time: number) {
+			const height = (innerHeight / innerWidth) * 100;
+			for (let i = 0; i < fishes.length; i++) {
+				const fish = fishes[i];
+				const element = elements[i];
+				fish.time = time;
+				fish.move(new Vec2(100, height), [mouse]);
+				element.updateFromChunks(fish.chunks);
+			}
+			requestAnimationFrame(animate);
+		}
+		animate(0);
+	});
 </script>
 
 <main>
-	<svg id="svg" {viewBox} role="application" onmousemove={handleMouse}>
-		{#each fishes as fish}
-			<FishElement {fish} />
-		{/each}
-	</svg>
+	<svg id="svg" {viewBox} role="application" onmousemove={handleMouse}> </svg>
 </main>
 
 <style>

@@ -1,6 +1,6 @@
 export default class Vec2 {
-	x = $state(0);
-	y = $state(0);
+	static x = new Vec2(1);
+	static y = new Vec2(0, 1);
 
 	constructor(x = 0, y = 0) {
 		this.x = x;
@@ -11,11 +11,19 @@ export default class Vec2 {
 		return Math.sqrt(this.x ** 2 + this.y ** 2);
 	}
 
+	/**
+	 * @returns {Vec2} a copy of this vector
+	 */
 	clone() {
 		return new Vec2(this.x, this.y);
 	}
 
-	copy(src: Vec2) {
+	/**
+	 * Copies the coordinates of `src` vector into `this` vector
+	 * @param {Vec2} src
+	 * @returns {Vec2} `this` vector
+	 */
+	copy(src) {
 		this.x = src.x;
 		this.y = src.y;
 		return this;
@@ -27,23 +35,22 @@ export default class Vec2 {
 		return this;
 	}
 
-	resize(length: number) {
+	/**
+	 *
+	 * @param {number} length
+	 * @returns
+	 */
+	resize(length) {
 		const scale = length / this.length;
 		this.x *= scale;
 		this.y *= scale;
 		return this;
 	}
 
-	scale(value: number) {
-		this.x *= value;
-		this.y *= value;
-		return this;
-	}
-
 	/**
-	 * @param angle in radians
+	 * @param {number} angle in radians
 	 */
-	rotate(angle: number) {
+	rotate(angle) {
 		const s = Math.sin(angle);
 		const c = Math.cos(angle);
 		const x = this.x;
@@ -53,20 +60,39 @@ export default class Vec2 {
 		return this;
 	}
 
-	add(value: Vec2): Vec2;
-	add(x: number, y: number): Vec2;
-	add(value: Vec2 | number, y?: number) {
+	/**
+	 * @overload
+	 * @param {Vec2} value
+	 * @returns {Vec2}
+	 */
+	/**
+	 * @overload
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {Vec2}
+	 */
+	/**
+	 * @param {Vec2|number} value
+	 * @param {number} [y]
+	 * @returns {Vec2}
+	 */
+	add(value, y) {
 		if (value instanceof Vec2) {
 			this.x += value.x;
 			this.y += value.y;
-		} else {
+		} else if (y !== undefined) {
 			this.x += value;
-			this.y += y!;
+			this.y += y;
 		}
 		return this;
 	}
 
-	sub(value: Vec2) {
+	/**
+	 *
+	 * @param {Vec2} value
+	 * @returns
+	 */
+	sub(value) {
 		this.x -= value.x;
 		this.y -= value.y;
 		return this;
@@ -80,15 +106,43 @@ export default class Vec2 {
 		return new Vec2(-this.y, this.x);
 	}
 
-	static diff(a: Vec2, b: Vec2) {
+	/**
+	 *
+	 * @param {Vec2} a
+	 * @param {Vec2} b
+	 * @returns
+	 */
+	static diff(a, b) {
 		return new Vec2(a.x - b.x, a.y - b.y);
 	}
 
-	static dot(a: Vec2, b: Vec2): number {
+	/**
+	 *
+	 * @param {Vec2} a
+	 * @param {Vec2} b
+	 * @returns
+	 */
+	static sqrDist(a, b) {
+		return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+	}
+
+	/**
+	 *
+	 * @param {Vec2} a
+	 * @param {Vec2} b
+	 * @returns
+	 */
+	static dot(a, b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
-	static angle(a: Vec2, b: Vec2): number {
+	/**
+	 *
+	 * @param {Vec2} a
+	 * @param {Vec2} b
+	 * @returns
+	 */
+	static angle(a, b) {
 		// float operations may lead the next part to be slightly > 1
 		// which is mathematically not possible and results in NaN acos()
 		let tmp = Vec2.dot(a, b) / (a.length * b.length);
@@ -97,9 +151,13 @@ export default class Vec2 {
 	}
 
 	/**
-	 * Angle between 3 points
+	 * Agnle between 3 points
+	 * @param {Vec2} a
+	 * @param {Vec2} b
+	 * @param {Vec2} c
+	 * @returns
 	 */
-	static angle3(a: Vec2, b: Vec2, c: Vec2): number {
+	static angle3(a, b, c) {
 		const x1 = b.x - a.x;
 		const y1 = b.y - a.y;
 		const l1 = x1 ** 2 + y1 ** 2;
