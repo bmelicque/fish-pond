@@ -15,6 +15,12 @@ export default class Vec2 {
 		return new Vec2(this.x, this.y);
 	}
 
+	reverse() {
+		this.x = -this.x;
+		this.y = -this.y;
+		return this;
+	}
+
 	resize(length: number) {
 		const scale = length / this.length;
 		this.x *= scale;
@@ -80,7 +86,7 @@ export default class Vec2 {
 		// float operations may lead the next part to be slightly > 1
 		// which is mathematically not possible and results in NaN acos()
 		let tmp = Vec2.dot(a, b) / (a.length * b.length);
-		if (tmp > 1 || tmp < -1) tmp = Math.round(tmp);
+		if (tmp > 1 || tmp < -1) tmp = Math.sign(tmp);
 		return Math.acos(tmp) * Math.sign(a.x * b.y - a.y * b.x);
 	}
 

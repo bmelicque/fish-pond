@@ -9,7 +9,29 @@
 	// TODO:
 	function resize() {}
 
-	let fishes = $state([new Fish(new Vec2(5, 5)), new Fish(new Vec2(20, 10)), new Fish(new Vec2(40, 90))]);
+	let fishes = $state([
+		new Fish(new Vec2(5, 5)),
+		new Fish(new Vec2(15, 5)),
+		new Fish(new Vec2(25, 5)),
+		new Fish(new Vec2(35, 5)),
+		new Fish(new Vec2(45, 5)),
+		new Fish(new Vec2(55, 5)),
+		new Fish(new Vec2(65, 5)),
+		new Fish(new Vec2(75, 5)),
+		new Fish(new Vec2(85, 5)),
+		new Fish(new Vec2(95, 5)),
+
+		new Fish(new Vec2(5, 25)),
+		new Fish(new Vec2(15, 25)),
+		new Fish(new Vec2(25, 25)),
+		new Fish(new Vec2(35, 25)),
+		new Fish(new Vec2(45, 25)),
+		new Fish(new Vec2(55, 25)),
+		new Fish(new Vec2(65, 25)),
+		new Fish(new Vec2(75, 25)),
+		new Fish(new Vec2(85, 25)),
+		new Fish(new Vec2(95, 25)),
+	]);
 </script>
 
 <main>

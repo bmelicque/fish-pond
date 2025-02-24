@@ -14,13 +14,23 @@ export class Chunk {
 	}
 }
 
+// TODO: make them part of instance? (could lead to different behaviors)
+const DODGE_RADIUS = 15 * NODE_DIST;
+const ALIGN_RADIUS = 1.2 * DODGE_RADIUS;
+const APPROACH_RADIUS = 2 * DODGE_RADIUS;
+
+const DODGE_FACTOR = 2;
+
 export class Fish {
+	private static elements: Fish[] = [];
+
 	readonly chunks: Chunk[];
 	readonly speed: number;
 
 	constructor(position: Vec2) {
 		this.chunks = RADII.map((r, i) => new Chunk(r * NODE_DIST, new Vec2(-i + position.x, -i + position.y)));
 		this.speed = RADII.length * NODE_DIST;
+		Fish.elements.push(this);
 	}
 
 	get position() {
@@ -37,6 +47,15 @@ export class Fish {
 
 	get direction() {
 		return Vec2.diff(this.chunks[0].position, this.chunks[1].position);
+	}
+
+	findNeighbours() {
+		return Fish.elements
+			.sort(
+				(a, b) =>
+					a.position.x + b.position.x - 2 * this.position.x + (a.position.y + b.position.y - 2 * this.position.y)
+			)
+			.slice(0, 6);
 	}
 
 	#getBodyPoints(chunks: Chunk[]) {
@@ -96,5 +115,37 @@ export class Fish {
 
 		path += " Z";
 		return path;
+	}
+
+	move(maxPosition: Vec2, distance: number) {
+		const target = this.direction;
+		if (this.position.y < DODGE_RADIUS) {
+			target.add(0, distance);
+		}
+		if (this.position.y > maxPosition.y - DODGE_RADIUS) {
+			target.add(0, -distance);
+		}
+		if (this.position.x < DODGE_RADIUS) {
+			target.add(distance, 0);
+		}
+		if (this.position.x > maxPosition.x - DODGE_RADIUS) {
+			target.add(-distance, 0);
+		}
+		const neighbours = this.findNeighbours();
+		for (let i = 0; i < neighbours.length; i++) {
+			const neighbour = neighbours[i];
+			const diff = Vec2.diff(neighbour.position, this.position);
+			if (diff.length < Number.EPSILON) continue;
+			const increment = distance * (1 - i / neighbours.length);
+			if (diff.length < DODGE_RADIUS) {
+				target.add(diff.reverse().resize(DODGE_FACTOR * increment));
+			} else if (diff.length < ALIGN_RADIUS) {
+				target.add(neighbour.direction.clone().resize(increment));
+			} else if (diff.length < APPROACH_RADIUS) {
+				target.add(diff.resize(increment));
+			}
+		}
+		target.resize(distance);
+		this.position = this.position.clone().add(target);
 	}
 }
