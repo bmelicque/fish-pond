@@ -118,7 +118,7 @@ export class Fish {
 		let points = this.#getBodyPoints(this.chunks);
 		if (points.length < 3) return "";
 
-		points = [points[points.length - 3], points[points.length - 2], points[points.length - 1], ...points];
+		points.unshift(points[points.length - 3], points[points.length - 2], points[points.length - 1]);
 		points.pop();
 		points.pop();
 		points.pop();
@@ -153,8 +153,10 @@ export class Fish {
 			target.add(-distance, 0);
 		}
 
+		let diff = new Vec2();
+
 		for (let obstacle of obstacles) {
-			const diff = Vec2.diff(obstacle, this.position);
+			diff.copy(obstacle).sub(this.position);
 			if (diff.length < DODGE_RADIUS) {
 				target.add(diff.reverse().resize(DODGE_FACTOR * distance));
 			}
@@ -163,18 +165,20 @@ export class Fish {
 		const neighbours = this.findNeighbours();
 		for (let i = 0; i < neighbours.length; i++) {
 			const neighbour = neighbours[i];
-			const diff = Vec2.diff(neighbour.position, this.position);
-			if (diff.length < Number.EPSILON) continue;
+			diff.copy(neighbour.position).sub(this.position);
+			const l = diff.length;
+			if (l < Number.EPSILON) continue;
 			const increment = distance * (1 - i / neighbours.length);
-			if (diff.length < DODGE_RADIUS) {
+			if (l < DODGE_RADIUS) {
 				target.add(diff.reverse().resize(DODGE_FACTOR * increment));
-			} else if (diff.length < ALIGN_RADIUS) {
-				target.add(neighbour.direction.clone().resize(increment));
-			} else if (diff.length < APPROACH_RADIUS) {
+			} else if (l < ALIGN_RADIUS) {
+				target.add(diff.copy(neighbour.direction).resize(increment));
+			} else if (l < APPROACH_RADIUS) {
 				target.add(diff.resize(increment));
 			}
 		}
 		target.resize(distance);
-		this.position = this.position.clone().add(target);
+		// reassign to trigger movement of the whole body
+		this.position = this.position.add(target);
 	}
 }

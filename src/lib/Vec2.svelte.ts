@@ -15,6 +15,12 @@ export default class Vec2 {
 		return new Vec2(this.x, this.y);
 	}
 
+	copy(src: Vec2) {
+		this.x = src.x;
+		this.y = src.y;
+		return this;
+	}
+
 	reverse() {
 		this.x = -this.x;
 		this.y = -this.y;

@@ -22,13 +22,23 @@
 		return new Fish(position, orientation);
 	}
 
-	let fishes = $state(new Array(100).fill(0).map(makeRandomFish));
+	let fishes = $state(new Array(30).fill(0).map(makeRandomFish));
+
+	function animate(time: number) {
+		const height = (innerHeight / innerWidth) * 100;
+		for (let fish of fishes) {
+			fish.time = time;
+			fish.move(new Vec2(100, height), [mouse]);
+		}
+		requestAnimationFrame(animate);
+	}
+	animate(0);
 </script>
 
 <main>
 	<svg id="svg" {viewBox} role="application" onmousemove={handleMouse}>
 		{#each fishes as fish}
-			<FishElement {fish} obstacles={[mouse]} />
+			<FishElement {fish} />
 		{/each}
 	</svg>
 </main>

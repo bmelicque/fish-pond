@@ -2,29 +2,13 @@
 	import CaudalFin from "./CaudalFin.svelte";
 	import DorsalFin from "./DorsalFin.svelte";
 	import Fin from "./Fin.svelte";
-	import { Chunk, Fish, NODE_DIST } from "./Fish.svelte";
-	import Vec2 from "./Vec2.svelte";
+	import { Fish, NODE_DIST } from "./Fish.svelte";
 
 	type Props = {
 		fish: Fish;
-		obstacles: Vec2[];
 	};
 
-	let { fish, obstacles }: Props = $props();
-
-	const chunks: Chunk[] = $derived(fish.chunks);
-
-	function animate(time: number) {
-		if (fish.time === undefined) {
-			fish.time = time;
-			requestAnimationFrame(animate);
-		}
-		fish.time = time;
-		const height = (innerHeight / innerWidth) * 100;
-		fish.move(new Vec2(100, height), obstacles);
-		requestAnimationFrame(animate);
-	}
-	animate(0);
+	let { fish }: Props = $props();
 </script>
 
 <g>
@@ -39,7 +23,6 @@
 
 <style>
 	path {
-		/* fill: #ffa69e; */
 		z-index: 1;
 	}
 </style>
