@@ -36,6 +36,16 @@ export default class Vec2 {
 	}
 
 	/**
+	 * @param {number} factor
+	 * @returns
+	 */
+	scale(factor) {
+		this.x *= factor;
+		this.y *= factor;
+		return this;
+	}
+
+	/**
 	 *
 	 * @param {number} length
 	 * @returns

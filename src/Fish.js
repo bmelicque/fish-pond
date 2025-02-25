@@ -32,6 +32,11 @@ const ALIGN_FACTOR = 1;
 const APPROACH_FACTOR = 1;
 
 const COLORS = ["#ffa69e", "#89a8b2", "#727d73"];
+export const LIGHTER_COLORS = {
+	"#ffa69e": "white",
+	"#89a8b2": "white",
+	"#727d73": "white",
+};
 
 export class Fish {
 	/** @type {Fish[]} */

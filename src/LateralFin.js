@@ -2,9 +2,10 @@ import { Chunk } from "./Fish.js";
 import Vec2 from "./Vector2.js";
 
 export default class LateralFin {
-	#node;
 	#at;
 	#side;
+	#length;
+	#color;
 
 	/**
 	 * @param {number} at The body chunk at which the fin is located
@@ -13,22 +14,11 @@ export default class LateralFin {
 	 * @param {string} [color] The fin's color
 	 */
 	constructor(at, side, length, color = "white") {
-		this.#node = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
-		this.#node.setAttribute("rx", length.toString());
-		this.#node.setAttribute("ry", (length / 2).toString());
-		this.#node.setAttribute("transform-origin", "center");
-		this.#node.style.transformBox = "fill-box";
-		this.#node.style.filter = "brightness(200%)";
-		this.#node.setAttribute("fill", color);
 		this.#at = at;
 		this.#side = side;
-	}
-
-	/**
-	 * Returns the DOM node representing this fin
-	 */
-	get node() {
-		return this.#node;
+		this.#length = length;
+		// TODO: lighten color
+		this.#color = color;
 	}
 
 	/**
@@ -58,17 +48,28 @@ export default class LateralFin {
 
 	/**
 	 *
+	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {Chunk[]} chunks
-	 * @returns {void}
 	 */
-	updateFromChunks(chunks) {
+	drawFromChunks(ctx, chunks) {
+		const scale = innerWidth / 100;
+
 		const chunkOrientation = this.#getChunkOrientation(chunks);
 		const position = this.#getFinPosition(chunks);
 
-		const finOrientation = (-chunkOrientation * 180) / Math.PI - this.#side * 30;
-		this.#node.setAttribute(
-			"transform",
-			`translate(${position.x.toString()},${position.y.toString()}) rotate(${finOrientation}) `
+		const finOrientation = -chunkOrientation - (this.#side * Math.PI) / 6;
+		ctx.beginPath();
+		ctx.ellipse(
+			position.x * scale,
+			position.y * scale,
+			this.#length * scale,
+			(this.#length * scale) / 2,
+			finOrientation,
+			0,
+			2 * Math.PI
 		);
+		ctx.closePath();
+		ctx.fillStyle = this.#color;
+		ctx.fill();
 	}
 }

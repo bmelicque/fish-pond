@@ -3,8 +3,9 @@ import FishElement from "./src/FishElement.js";
 import Vec2 from "./src/Vector2.js";
 
 function resize() {
-	const height = (innerHeight / innerWidth) * 100;
-	document.getElementById("svg").setAttribute("viewBox", `0 0 100 ${height}`);
+	const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas"));
+	canvas.height = innerHeight;
+	canvas.width = innerWidth;
 }
 addEventListener("resize", resize);
 resize();
@@ -12,15 +13,14 @@ resize();
 const state = {
 	mouse: new Vec2(),
 };
-document.getElementById("svg").addEventListener("mousemove", (e) => {
+document.getElementById("canvas").addEventListener("mousemove", (e) => {
 	state.mouse.x = (e.x * 100) / innerWidth;
 	state.mouse.y = (e.y * 100) / innerWidth;
 });
 
-const fishes = new Array(1).fill(0).map(() => {
+const fishes = new Array(100).fill(0).map(() => {
 	const model = Fish.random();
 	const view = new FishElement(model);
-	document.getElementById("svg").appendChild(view.node);
 	return {
 		model,
 		view,
@@ -45,9 +45,14 @@ function animate(time) {
 	const elapsed = time - lastTime;
 	lastTime = time;
 	const height = (innerHeight / innerWidth) * 100;
+
+	const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas"));
+	const ctx = canvas.getContext("2d");
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
 	for (let fish of fishes) {
 		fish.model.move(elapsed, new Vec2(100, height), [state.mouse]);
-		fish.view.updateFromChunks(fish.model.chunks);
+		fish.view.drawFromChunks(ctx, fish.model.chunks);
 	}
 	requestAnimationFrame(animate);
 }

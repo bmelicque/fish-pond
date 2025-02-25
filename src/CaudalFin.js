@@ -2,18 +2,10 @@ import { NODE_DIST, Chunk } from "./Fish.js";
 import Vec2 from "./Vector2.js";
 
 export default class CaudalFin {
-	#node;
+	#color;
 
 	constructor(color = "white") {
-		this.#node = document.createElementNS("http://www.w3.org/2000/svg", "path");
-		this.#node.style.strokeWidth = "0.1";
-		this.#node.style.filter = "brightness(200%)";
-		this.#node.setAttribute("fill", color);
-		this.#node.setAttribute("stroke", color);
-	}
-
-	get node() {
-		return this.#node;
+		this.#color = color;
 	}
 
 	/**
@@ -31,24 +23,36 @@ export default class CaudalFin {
 
 	/**
 	 *
+	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {Chunk[]} chunks
 	 */
-	updateFromChunks(chunks) {
-		const start = chunks[chunks.length - 2].position;
-		const mid = chunks[chunks.length - 1].position;
+	drawFromChunks(ctx, chunks) {
+		const scale = innerWidth / 100;
+		const start = chunks[chunks.length - 2].position.clone().scale(scale);
+		const mid = chunks[chunks.length - 1].position.clone().scale(scale);
 		const outerAngle = Vec2.angle(start, mid);
 		const outerEnd = Vec2.diff(mid, start)
 			.rotate(outerAngle)
-			.resize(3 * NODE_DIST)
+			.resize(3 * NODE_DIST * scale)
 			.add(mid);
 		const curvature = this.#getBodyCurvature(chunks);
 		const innerEnd = Vec2.diff(mid, start)
 			.rotate(outerAngle + 3 * curvature)
-			.resize(3 * NODE_DIST)
+			.resize(3 * NODE_DIST * scale)
 			.add(mid);
 		const firstEnd = { x: (2 * outerEnd.x + innerEnd.x) / 3, y: (2 * outerEnd.y + innerEnd.y) / 3 };
 		const secondEnd = { x: (outerEnd.x + 2 * innerEnd.x) / 3, y: (outerEnd.y + 2 * innerEnd.y) / 3 };
-		const path = `M${start.x},${start.y} Q${outerEnd.x},${outerEnd.y} ${firstEnd.x},${firstEnd.y} L${secondEnd.x},${secondEnd.y} Q${innerEnd.x},${innerEnd.y} ${start.x},${start.y}`;
-		this.#node.setAttribute("d", path);
+
+		ctx.beginPath();
+		ctx.moveTo(start.x, start.y);
+		ctx.quadraticCurveTo(outerEnd.x, outerEnd.y, firstEnd.x, firstEnd.y);
+		ctx.lineTo(secondEnd.x, secondEnd.y);
+		ctx.quadraticCurveTo(innerEnd.x, innerEnd.y, start.x, start.y);
+		ctx.closePath();
+		ctx.fillStyle = this.#color;
+		ctx.fill();
+		ctx.strokeStyle = this.#color;
+		ctx.lineWidth = innerWidth / 1000;
+		ctx.stroke();
 	}
 }
