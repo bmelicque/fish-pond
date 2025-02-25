@@ -1,5 +1,5 @@
-import { NODE_DIST, Chunk } from "./Fish";
-import Vec2 from "./Vector2";
+import { NODE_DIST, Chunk } from "./Fish.js";
+import Vec2 from "./Vector2.js";
 
 export default class CaudalFin {
 	#node;

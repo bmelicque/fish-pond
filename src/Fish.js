@@ -1,4 +1,4 @@
-import Vec2 from "./Vector2";
+import Vec2 from "./Vector2.js";
 
 export const NODE_DIST = 0.3;
 const RADII = [1.36, 1.68, 1.74, 1.7, 1.66, 1.54, 1.28, 1.2, 1.02, 0.76, 0.68, 0.64, 0.38, 0.3, 0];
@@ -27,7 +27,7 @@ const DODGE_RADIUS = 15 * NODE_DIST;
 const ALIGN_RADIUS = 1.2 * DODGE_RADIUS;
 const APPROACH_RADIUS = 1.5 * DODGE_RADIUS;
 
-const DODGE_FACTOR = 4;
+const DODGE_FACTOR = 8;
 const ALIGN_FACTOR = 1;
 const APPROACH_FACTOR = 1;
 

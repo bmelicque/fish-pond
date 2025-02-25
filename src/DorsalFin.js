@@ -1,4 +1,4 @@
-import { Chunk } from "./Fish";
+import { Chunk } from "./Fish.js";
 
 export default class DorsalFin {
 	#node;

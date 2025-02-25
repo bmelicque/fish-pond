@@ -1,8 +1,8 @@
-import CaudalFin from "./CaudalFin";
-import DorsalFin from "./DorsalFin";
-import { Chunk, Fish, NODE_DIST } from "./Fish";
-import FishBody from "./FishBody";
-import LateralFin from "./LateralFin";
+import CaudalFin from "./CaudalFin.js";
+import DorsalFin from "./DorsalFin.js";
+import { Chunk, Fish, NODE_DIST } from "./Fish.js";
+import FishBody from "./FishBody.js";
+import LateralFin from "./LateralFin.js";
 
 export default class FishElement {
 	#node;

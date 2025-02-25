@@ -1,5 +1,5 @@
-import { Chunk } from "./Fish";
-import Vec2 from "./Vector2";
+import { Chunk } from "./Fish.js";
+import Vec2 from "./Vector2.js";
 
 export default class LateralFin {
 	#node;
