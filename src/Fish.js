@@ -117,10 +117,8 @@ export class Fish {
 			target.add(-distance, 0);
 		}
 
-		let diff = new Vec2();
-
 		for (let obstacle of obstacles) {
-			diff.copy(obstacle).sub(this.position);
+			const diff = Vec2.diff(obstacle, this.position);
 			if (diff.length < DODGE_RADIUS) {
 				target.add(diff.reverse().resize(DODGE_FACTOR * distance));
 			}
@@ -131,8 +129,7 @@ export class Fish {
 			const neighbour = neighbours[i];
 			const diff = Vec2.diff(neighbour.position, this.position);
 			const l = diff.length;
-			// const increment = distance * (1 - i / neighbours.length);
-			const increment = distance;
+			const increment = distance * (1 - i / neighbours.length);
 			if (l < DODGE_RADIUS) {
 				target.add(diff.reverse().resize(DODGE_FACTOR * increment));
 			} else if (l < ALIGN_RADIUS) {

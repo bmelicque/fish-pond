@@ -12,12 +12,12 @@ resize();
 const state = {
 	mouse: new Vec2(),
 };
-document.getElementById("svg").addEventListener("mouseover", (e) => {
+document.getElementById("svg").addEventListener("mousemove", (e) => {
 	state.mouse.x = (e.x * 100) / innerWidth;
 	state.mouse.y = (e.y * 100) / innerWidth;
 });
 
-const fishes = new Array(30).fill(0).map(() => {
+const fishes = new Array(1).fill(0).map(() => {
 	const model = Fish.random();
 	const view = new FishElement(model);
 	document.getElementById("svg").appendChild(view.node);
