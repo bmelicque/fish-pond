@@ -45,10 +45,6 @@ export class Fish {
 	speed = (NODE_DIST * RADII.length) / 1000;
 	color;
 
-	/** @type {number|undefined} */
-	#time;
-	#delta = 0;
-
 	/**
 	 *
 	 * @param {Vec2} position
@@ -73,16 +69,6 @@ export class Fish {
 		const alpha = Math.random() * Math.PI * 2;
 		const orientation = new Vec2(Math.cos(alpha), Math.sin(alpha));
 		return new Fish(position, orientation);
-	}
-
-	get time() {
-		return this.#time;
-	}
-
-	set time(t) {
-		if (t === undefined) return;
-		if (this.#time) this.#delta = t - this.#time;
-		this.#time = t;
 	}
 
 	get position() {
@@ -111,13 +97,13 @@ export class Fish {
 	}
 
 	/**
-	 *
+	 * @param {number} delta
 	 * @param {Vec2} maxPosition
 	 * @param {Vec2[]} obstacles
 	 */
-	move(maxPosition, obstacles) {
-		const distance = this.#delta * this.speed;
-		const target = this.direction;
+	move(delta, maxPosition, obstacles) {
+		const distance = delta * this.speed;
+		const target = this.direction.clone();
 		if (this.position.y < DODGE_RADIUS) {
 			target.add(0, distance);
 		}
@@ -145,13 +131,6 @@ export class Fish {
 			const neighbour = neighbours[i];
 			const diff = Vec2.diff(neighbour.position, this.position);
 			const l = diff.length;
-			if (isNaN(neighbour.position.x)) {
-				console.log("nan");
-			}
-			if (l < Number.EPSILON) {
-				console.log("so small!");
-				continue;
-			}
 			// const increment = distance * (1 - i / neighbours.length);
 			const increment = distance;
 			if (l < DODGE_RADIUS) {

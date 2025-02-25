@@ -49,7 +49,7 @@ export default class FishBody {
 
 		const last = chunks.at(-1);
 		if (!last) throw new Error("chunks are empty!!");
-		lhs.push(last.position);
+		lhs.push(last.position.clone());
 
 		return lhs.concat(rhs.reverse());
 	}

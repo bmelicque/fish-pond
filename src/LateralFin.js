@@ -63,11 +63,12 @@ export default class LateralFin {
 	 */
 	updateFromChunks(chunks) {
 		const chunkOrientation = this.#getChunkOrientation(chunks);
-		const finOrientation = (-chunkOrientation * 180) / Math.PI - this.#side * 30;
-		this.#node.setAttribute("transform", `rotate(${finOrientation})`);
-
 		const position = this.#getFinPosition(chunks);
-		this.#node.setAttribute("cx", position.x.toString());
-		this.#node.setAttribute("cy", position.y.toString());
+
+		const finOrientation = (-chunkOrientation * 180) / Math.PI - this.#side * 30;
+		this.#node.setAttribute(
+			"transform",
+			`translate(${position.x.toString()},${position.y.toString()}) rotate(${finOrientation}) `
+		);
 	}
 }

@@ -17,20 +17,37 @@ document.getElementById("svg").addEventListener("mouseover", (e) => {
 	state.mouse.y = (e.y * 100) / innerWidth;
 });
 
-const fishes = new Array(30).fill(0).map(() => Fish.random());
-const elements = fishes.map((fish) => new FishElement(fish));
-for (let fish of elements) {
-	document.getElementById("svg")?.appendChild(fish.node);
-}
+const fishes = new Array(30).fill(0).map(() => {
+	const model = Fish.random();
+	const view = new FishElement(model);
+	document.getElementById("svg").appendChild(view.node);
+	return {
+		model,
+		view,
+	};
+});
 
+/** @type {number|undefined} */
+let lastTime = undefined;
+document.addEventListener("visibilitychange", () => {
+	lastTime = undefined;
+});
+
+/**
+ * @param {number} time
+ */
 function animate(time) {
+	if (lastTime === undefined) {
+		lastTime = time;
+		requestAnimationFrame(animate);
+		return;
+	}
+	const elapsed = time - lastTime;
+	lastTime = time;
 	const height = (innerHeight / innerWidth) * 100;
-	for (let i = 0; i < fishes.length; i++) {
-		const fish = fishes[i];
-		const element = elements[i];
-		fish.time = time;
-		fish.move(new Vec2(100, height), [state.mouse]);
-		element.updateFromChunks(fish.chunks);
+	for (let fish of fishes) {
+		fish.model.move(elapsed, new Vec2(100, height), [state.mouse]);
+		fish.view.updateFromChunks(fish.model.chunks);
 	}
 	requestAnimationFrame(animate);
 }
