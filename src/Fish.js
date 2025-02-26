@@ -24,18 +24,18 @@ export class Chunk {
 
 // TODO: make them part of instance? (could lead to different behaviors)
 const DODGE_RADIUS = 15 * NODE_DIST;
-const ALIGN_RADIUS = 1.2 * DODGE_RADIUS;
+const ALIGN_RADIUS = 1 * DODGE_RADIUS;
 const APPROACH_RADIUS = 1.5 * DODGE_RADIUS;
 
-const DODGE_FACTOR = 8;
+const DODGE_FACTOR = 1;
 const ALIGN_FACTOR = 1;
 const APPROACH_FACTOR = 1;
 
 const COLORS = ["#ffa69e", "#89a8b2", "#727d73"];
 export const LIGHTER_COLORS = {
-	"#ffa69e": "white",
-	"#89a8b2": "white",
-	"#727d73": "white",
+	"#ffa69e": "#ffd5d1",
+	"#89a8b2": "#c7d6da",
+	"#727d73": "#a7aea7",
 };
 
 export class Fish {
