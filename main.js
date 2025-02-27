@@ -10,14 +10,6 @@ function resize() {
 addEventListener("resize", resize);
 resize();
 
-const state = {
-	mouse: new Vec2(),
-};
-document.getElementById("canvas").addEventListener("mousemove", (e) => {
-	state.mouse.x = (e.x * 100) / innerWidth;
-	state.mouse.y = (e.y * 100) / innerWidth;
-});
-
 const fishes = new Array(100).fill(0).map(() => {
 	const model = Fish.random();
 	const view = new FishElement(model);
@@ -25,6 +17,13 @@ const fishes = new Array(100).fill(0).map(() => {
 		model,
 		view,
 	};
+});
+
+document.getElementById("canvas").addEventListener("click", (e) => {
+	const mouse = new Vec2((e.x * 100) / innerWidth, (e.y * 100) / innerWidth);
+	for (let fish of fishes) {
+		fish.model.fleeFrom(mouse);
+	}
 });
 
 /** @type {number|undefined} */
@@ -51,7 +50,7 @@ function animate(time) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	for (let fish of fishes) {
-		fish.model.move(elapsed, new Vec2(100, height), [state.mouse]);
+		fish.model.move(elapsed, new Vec2(100, height));
 		fish.view.drawFromChunks(ctx, fish.model.chunks);
 	}
 	requestAnimationFrame(animate);

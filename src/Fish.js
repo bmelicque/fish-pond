@@ -22,14 +22,18 @@ export class Chunk {
 	}
 }
 
-// TODO: make them part of instance? (could lead to different behaviors)
 const DODGE_RADIUS = 15 * NODE_DIST;
 const ALIGN_RADIUS = 1 * DODGE_RADIUS;
 const APPROACH_RADIUS = 1.5 * DODGE_RADIUS;
+const FLEE_RADIUS = 2 * DODGE_RADIUS;
+const FLEE_RADIUS_SQR = FLEE_RADIUS ** 2;
 
 const DODGE_FACTOR = 1;
 const ALIGN_FACTOR = 1;
 const APPROACH_FACTOR = 1;
+const FLEE_FACTOR = 8;
+
+const FLEE_TIME = 1500; // ms
 
 const MAX_REDIRECT_ANGLE = Math.PI / 8;
 
@@ -39,6 +43,12 @@ export const LIGHTER_COLORS = {
 	"#89a8b2": "#c7d6da",
 	"#727d73": "#a7aea7",
 };
+
+/**
+ * @typedef FleeingState
+ * @property {Vec2} from coordinates of the point being fled from
+ * @property {number} for how long to stay in this state (in milliseconds)
+ */
 
 export class Fish {
 	/** @type {Fish[]} */
@@ -64,6 +74,12 @@ export class Fish {
 	#chunks;
 	/** The fish's color */
 	#color;
+
+	/**
+	 * The optional fleeing state of the fish
+	 * @type {FleeingState|null}
+	 */
+	#fleeing = null;
 
 	/**
 	 * @param {Vec2} position
@@ -105,7 +121,9 @@ export class Fish {
 	}
 
 	get speed() {
-		return (NODE_DIST * RADII.length) / 1000;
+		const baseSpeed = (NODE_DIST * RADII.length) / 1000;
+		if (!this.#fleeing) return baseSpeed;
+		return baseSpeed * Math.min(3, 1 + (3 * this.#fleeing.for) / FLEE_TIME);
 	}
 
 	get color() {
@@ -113,10 +131,22 @@ export class Fish {
 	}
 
 	/**
+	 * Make the fish flee from dange
+	 * @param {Vec2} src source of danger
+	 */
+	fleeFrom(src) {
+		if (Vec2.sqrDist(this.position, src) > FLEE_RADIUS_SQR) return;
+		this.#fleeing = {
+			from: src,
+			for: FLEE_TIME,
+		};
+	}
+
+	/**
 	 * Find the closest neighbours to `this` fish
 	 * @returns {Fish[]} a list of neighbours
 	 */
-	findNeighbours(count = 6) {
+	#findNeighbours(count = 6) {
 		return Fish.#elements
 			.sort((a, b) => Vec2.sqrDist(this.position, a.position) - Vec2.sqrDist(this.position, b.position))
 			.slice(0, count);
@@ -126,11 +156,18 @@ export class Fish {
 	 * Move the fish according to given constraints
 	 * @param {number} delta how much time has elapsed since the last movement
 	 * @param {Vec2} maxPosition the farthest the fish should go starting from (0,0)
-	 * @param {Vec2[]} obstacles any obstacles
 	 */
-	move(delta, maxPosition, obstacles) {
+	move(delta, maxPosition) {
 		const distance = delta * this.speed;
 		const target = this.direction.clone();
+
+		// #region flee
+		if (this.#fleeing) {
+			target.add(Vec2.diff(this.position, this.#fleeing.from).resize(distance * FLEE_FACTOR));
+			this.#fleeing.for -= delta;
+			if (this.#fleeing.for <= 0) this.#fleeing = null;
+		}
+		// #endregion
 
 		// #region avoid borders
 		if (this.position.y < DODGE_RADIUS) {
@@ -147,17 +184,8 @@ export class Fish {
 		}
 		// #endregion
 
-		// #region avoid obstacles (mainly mouse)
-		for (let obstacle of obstacles) {
-			const diff = Vec2.diff(obstacle, this.position);
-			if (diff.length < 2 * DODGE_RADIUS) {
-				target.add(diff.reverse().resize(4 * DODGE_FACTOR * distance));
-			}
-		}
-		// #endregion
-
 		// #region adapt to neighboring fishes
-		const neighbours = this.findNeighbours();
+		const neighbours = this.#findNeighbours();
 		for (let i = 1; i < neighbours.length; i++) {
 			const neighbour = neighbours[i];
 			const diff = Vec2.diff(neighbour.position, this.position);
