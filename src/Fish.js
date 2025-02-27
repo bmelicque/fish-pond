@@ -31,6 +31,8 @@ const DODGE_FACTOR = 1;
 const ALIGN_FACTOR = 1;
 const APPROACH_FACTOR = 1;
 
+const MAX_REDIRECT_ANGLE = Math.PI / 8;
+
 const COLORS = ["#ffa69e", "#89a8b2", "#727d73"];
 export const LIGHTER_COLORS = {
 	"#ffa69e": "#ffd5d1",
@@ -45,25 +47,6 @@ export class Fish {
 		return this.#elements;
 	}
 
-	// TODO: the 3 below should be readonly
-	chunks;
-	speed = (NODE_DIST * RADII.length) / 1000;
-	color;
-
-	/**
-	 *
-	 * @param {Vec2} position
-	 * @param {Vec2} orientation
-	 */
-	constructor(position, orientation) {
-		orientation.reverse().resize(NODE_DIST);
-		this.chunks = RADII.map(
-			(r, i) => new Chunk(r * NODE_DIST, new Vec2(position.x - i * orientation.x, position.y - i * orientation.y))
-		);
-		this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
-		Fish.#elements.push(this);
-	}
-
 	/**
 	 *
 	 * @param {Vec2} maxPosition
@@ -73,7 +56,31 @@ export class Fish {
 		const position = new Vec2(Math.random() * maxPosition.x, Math.random() * maxPosition.y);
 		const alpha = Math.random() * Math.PI * 2;
 		const orientation = new Vec2(Math.cos(alpha), Math.sin(alpha));
-		return new Fish(position, orientation);
+		const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+		return new Fish(position, orientation, color);
+	}
+
+	/** The body chunks composing the fish */
+	#chunks;
+	/** The fish's color */
+	#color;
+
+	/**
+	 * @param {Vec2} position
+	 * @param {Vec2} orientation
+	 * @param {string} [color]
+	 */
+	constructor(position, orientation, color = "white") {
+		orientation.reverse().resize(NODE_DIST);
+		this.#chunks = RADII.map(
+			(r, i) => new Chunk(r * NODE_DIST, new Vec2(position.x - i * orientation.x, position.y - i * orientation.y))
+		);
+		this.#color = color;
+		Fish.#elements.push(this);
+	}
+
+	get chunks() {
+		return this.#chunks;
 	}
 
 	get position() {
@@ -85,9 +92,11 @@ export class Fish {
 	 */
 	set position(position) {
 		this.chunks[0].position = position;
+		let prev = position;
 		for (let i = 1; i < this.chunks.length; i++) {
-			const prev = this.chunks[i - 1].position;
-			this.chunks[i].position.sub(prev).resize(NODE_DIST).add(prev);
+			const cur = this.chunks[i].position;
+			cur.sub(prev).resize(NODE_DIST).add(prev);
+			prev = cur;
 		}
 	}
 
@@ -95,20 +104,35 @@ export class Fish {
 		return Vec2.diff(this.chunks[0].position, this.chunks[1].position);
 	}
 
-	findNeighbours() {
-		return Fish.#elements
-			.sort((a, b) => Vec2.sqrDist(this.position, a.position) - Vec2.sqrDist(this.position, b.position))
-			.slice(0, 6);
+	get speed() {
+		return (NODE_DIST * RADII.length) / 1000;
+	}
+
+	get color() {
+		return this.#color;
 	}
 
 	/**
-	 * @param {number} delta
-	 * @param {Vec2} maxPosition
-	 * @param {Vec2[]} obstacles
+	 * Find the closest neighbours to `this` fish
+	 * @returns {Fish[]} a list of neighbours
+	 */
+	findNeighbours(count = 6) {
+		return Fish.#elements
+			.sort((a, b) => Vec2.sqrDist(this.position, a.position) - Vec2.sqrDist(this.position, b.position))
+			.slice(0, count);
+	}
+
+	/**
+	 * Move the fish according to given constraints
+	 * @param {number} delta how much time has elapsed since the last movement
+	 * @param {Vec2} maxPosition the farthest the fish should go starting from (0,0)
+	 * @param {Vec2[]} obstacles any obstacles
 	 */
 	move(delta, maxPosition, obstacles) {
 		const distance = delta * this.speed;
 		const target = this.direction.clone();
+
+		// #region avoid borders
 		if (this.position.y < DODGE_RADIUS) {
 			target.add(0, distance);
 		}
@@ -121,14 +145,18 @@ export class Fish {
 		if (this.position.x > maxPosition.x - DODGE_RADIUS) {
 			target.add(-distance, 0);
 		}
+		// #endregion
 
+		// #region avoid obstacles (mainly mouse)
 		for (let obstacle of obstacles) {
 			const diff = Vec2.diff(obstacle, this.position);
-			if (diff.length < DODGE_RADIUS) {
-				target.add(diff.reverse().resize(DODGE_FACTOR * distance));
+			if (diff.length < 2 * DODGE_RADIUS) {
+				target.add(diff.reverse().resize(4 * DODGE_FACTOR * distance));
 			}
 		}
+		// #endregion
 
+		// #region adapt to neighboring fishes
 		const neighbours = this.findNeighbours();
 		for (let i = 1; i < neighbours.length; i++) {
 			const neighbour = neighbours[i];
@@ -143,8 +171,13 @@ export class Fish {
 				target.add(diff.resize(APPROACH_FACTOR * increment));
 			}
 		}
-		// TODO: cap max angle (prevent weird redirections)
-		target.resize(distance);
+		// #endregion
+
+		const angle = Vec2.angle(this.direction, target);
+		let adjust = 0;
+		if (angle > MAX_REDIRECT_ANGLE) adjust = angle - MAX_REDIRECT_ANGLE;
+		if (angle < -MAX_REDIRECT_ANGLE) adjust = angle + MAX_REDIRECT_ANGLE;
+		target.resize(distance).rotate(-adjust);
 		// reassign to trigger movement of the whole body
 		this.position = this.position.add(target);
 	}

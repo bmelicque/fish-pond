@@ -1,5 +1,7 @@
 export default class Vec2 {
+	/** Unit vector along the x axis */
 	static x = new Vec2(1);
+	/** Unit vector along the y axis */
 	static y = new Vec2(0, 1);
 
 	constructor(x = 0, y = 0) {
@@ -29,6 +31,9 @@ export default class Vec2 {
 		return this;
 	}
 
+	/**
+	 * Invert the sign of both coordinates in place
+	 */
 	reverse() {
 		this.x = -this.x;
 		this.y = -this.y;
@@ -36,8 +41,8 @@ export default class Vec2 {
 	}
 
 	/**
+	 * Scale the vector by a given factor
 	 * @param {number} factor
-	 * @returns
 	 */
 	scale(factor) {
 		this.x *= factor;
@@ -46,9 +51,8 @@ export default class Vec2 {
 	}
 
 	/**
-	 *
+	 * Resize the vector to a given length
 	 * @param {number} length
-	 * @returns
 	 */
 	resize(length) {
 		const scale = length / this.length;
@@ -58,6 +62,7 @@ export default class Vec2 {
 	}
 
 	/**
+	 * Rotate the vector by given angle
 	 * @param {number} angle in radians
 	 */
 	rotate(angle) {
@@ -71,20 +76,22 @@ export default class Vec2 {
 	}
 
 	/**
+	 * Add given vector to `this`
 	 * @overload
 	 * @param {Vec2} value
-	 * @returns {Vec2}
+	 * @returns {this}
 	 */
 	/**
+	 * Add given coordinates to `this`
 	 * @overload
-	 * @param {number} x
-	 * @param {number} y
-	 * @returns {Vec2}
+	 * @param {number} x x-coordinate
+	 * @param {number} y y-coordinate
+	 * @returns {this}
 	 */
 	/**
 	 * @param {Vec2|number} value
 	 * @param {number} [y]
-	 * @returns {Vec2}
+	 * @returns {this}
 	 */
 	add(value, y) {
 		if (value instanceof Vec2) {
@@ -100,7 +107,7 @@ export default class Vec2 {
 	/**
 	 *
 	 * @param {Vec2} value
-	 * @returns
+	 * @returns {this}
 	 */
 	sub(value) {
 		this.x -= value.x;
@@ -108,26 +115,37 @@ export default class Vec2 {
 		return this;
 	}
 
+	/**
+	 * Create a copy of the vector, rotated 90° clockwise.
+	 * Also has less overhead than `.rotate()`.
+	 * @returns {Vec2}
+	 */
 	cwNormal() {
 		return new Vec2(this.y, -this.x);
 	}
 
+	/**
+	 * Create a copy of the vector, rotated 90° counter-clockwise.
+	 * Also has less overhead than `.rotate()`.
+	 * @returns {Vec2}
+	 */
 	ccwNormal() {
 		return new Vec2(-this.y, this.x);
 	}
 
 	/**
-	 *
+	 * Return the difference of given vectors as a new vector
 	 * @param {Vec2} a
 	 * @param {Vec2} b
-	 * @returns
+	 * @returns {Vec2}
 	 */
 	static diff(a, b) {
 		return new Vec2(a.x - b.x, a.y - b.y);
 	}
 
 	/**
-	 *
+	 * Compute the square of the difference between to vectors.
+	 * Useful diff comparison, avoiding the overhead of Math.sqrt().
 	 * @param {Vec2} a
 	 * @param {Vec2} b
 	 * @returns
@@ -137,23 +155,23 @@ export default class Vec2 {
 	}
 
 	/**
-	 *
+	 * Compute the dot product of the vectors.
 	 * @param {Vec2} a
 	 * @param {Vec2} b
-	 * @returns
+	 * @returns {number}
 	 */
 	static dot(a, b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
 	/**
-	 *
+	 * Return the angle need for rotation from `a` to `b`
 	 * @param {Vec2} a
 	 * @param {Vec2} b
-	 * @returns
+	 * @returns {number}
 	 */
 	static angle(a, b) {
-		// float operations may lead the next part to be slightly > 1
+		// float precision may lead the next part to be slightly > 1 (or < -1)
 		// which is mathematically not possible and results in NaN acos()
 		let tmp = Vec2.dot(a, b) / (a.length * b.length);
 		if (tmp > 1 || tmp < -1) tmp = Math.sign(tmp);
@@ -161,7 +179,7 @@ export default class Vec2 {
 	}
 
 	/**
-	 * Agnle between 3 points
+	 * Angle between 3 points of coordinates `a`, `b` and `c`
 	 * @param {Vec2} a
 	 * @param {Vec2} b
 	 * @param {Vec2} c
