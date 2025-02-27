@@ -1,5 +1,6 @@
 import { Fish } from "./src/Fish.js";
 import FishElement from "./src/FishElement.js";
+import { render, startWave } from "./src/shaders.js";
 import Vec2 from "./src/Vector2.js";
 
 function resize() {
@@ -24,6 +25,7 @@ document.getElementById("canvas").addEventListener("click", (e) => {
 	for (let fish of fishes) {
 		fish.model.fleeFrom(mouse);
 	}
+	startWave(new Vec2(e.x / innerWidth, e.y / innerHeight));
 });
 
 /** @type {number|undefined} */
@@ -31,6 +33,24 @@ let lastTime = undefined;
 document.addEventListener("visibilitychange", () => {
 	lastTime = undefined;
 });
+
+const frameCanvas = document.createElement("canvas");
+const frameCtx = frameCanvas.getContext("2d");
+
+/**
+ *
+ * @param {number} elapsed
+ */
+function drawFrame(elapsed) {
+	frameCanvas.height = innerHeight;
+	frameCanvas.width = innerWidth;
+	frameCtx.clearRect(0, 0, innerWidth, innerHeight);
+
+	for (let fish of fishes) {
+		fish.model.move(elapsed, new Vec2(100, (innerHeight / innerWidth) * 100));
+		fish.view.drawFromChunks(frameCtx, fish.model.chunks);
+	}
+}
 
 /**
  * @param {number} time
@@ -43,16 +63,8 @@ function animate(time) {
 	}
 	const elapsed = time - lastTime;
 	lastTime = time;
-	const height = (innerHeight / innerWidth) * 100;
-
-	const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas"));
-	const ctx = canvas.getContext("2d");
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-	for (let fish of fishes) {
-		fish.model.move(elapsed, new Vec2(100, height));
-		fish.view.drawFromChunks(ctx, fish.model.chunks);
-	}
+	drawFrame(elapsed);
+	render(frameCanvas);
 	requestAnimationFrame(animate);
 }
 animate(0);
