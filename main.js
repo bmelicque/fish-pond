@@ -27,7 +27,8 @@ document.getElementById("canvas").addEventListener("click", (e) => {
 	const now = performance.now();
 	if (now - lastClick < MAX_CLICK_INTERVAL) return;
 	lastClick = now;
-	const mouse = new Vec2((e.x * 100) / innerWidth, (e.y * 100) / innerWidth);
+	const scale = Math.max(innerWidth, innerHeight) / 100;
+	const mouse = new Vec2(e.x / scale, e.y / scale);
 	for (let fish of fishes) {
 		fish.model.fleeFrom(mouse);
 	}
@@ -54,8 +55,13 @@ function drawFrame(elapsed) {
 	frameCtx.clearRect(0, 0, innerWidth, innerHeight);
 	frameCtx.putImageData(background.getImageData(), 0, 0);
 
+	const max =
+		innerWidth > innerHeight
+			? new Vec2(100, (innerHeight / innerWidth) * 100)
+			: new Vec2(100 * (innerWidth / innerHeight), 100);
+
 	for (let fish of fishes) {
-		fish.model.move(elapsed, new Vec2(100, (innerHeight / innerWidth) * 100));
+		fish.model.move(elapsed, max);
 		fish.view.drawFromChunks(frameCtx, fish.model.chunks);
 	}
 }

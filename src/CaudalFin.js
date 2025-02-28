@@ -27,7 +27,7 @@ export default class CaudalFin {
 	 * @param {Chunk[]} chunks
 	 */
 	drawFromChunks(ctx, chunks) {
-		const scale = innerWidth / 100;
+		const scale = Math.max(innerWidth, innerHeight) / 100;
 		const start = chunks[chunks.length - 2].position.clone().scale(scale);
 		const mid = chunks[chunks.length - 1].position.clone().scale(scale);
 		const outerAngle = Vec2.angle(start, mid);

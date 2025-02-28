@@ -52,7 +52,7 @@ export default class LateralFin {
 	 * @param {Chunk[]} chunks
 	 */
 	drawFromChunks(ctx, chunks) {
-		const scale = innerWidth / 100;
+		const scale = Math.max(innerWidth, innerHeight) / 100;
 
 		const chunkOrientation = this.#getChunkOrientation(chunks);
 		const position = this.#getFinPosition(chunks);

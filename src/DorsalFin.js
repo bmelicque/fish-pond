@@ -13,7 +13,7 @@ export default class DorsalFin {
 	 * @param {Chunk[]} chunks
 	 */
 	drawFromChunks(ctx, chunks) {
-		const scale = innerWidth / 100;
+		const scale = Math.max(innerWidth, innerHeight) / 100;
 
 		const start = chunks[5].position.clone().scale(scale);
 		const end = chunks[9].position.clone().scale(scale);

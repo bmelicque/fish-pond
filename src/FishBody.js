@@ -63,7 +63,7 @@ export default class FishBody {
 		points.pop();
 		points.pop();
 
-		const scale = innerWidth / 100;
+		const scale = Math.max(innerWidth, innerHeight) / 100;
 		ctx.beginPath();
 		const start = points[0].clone().scale(scale);
 		ctx.moveTo(start.x, start.y);

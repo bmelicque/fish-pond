@@ -29,7 +29,7 @@ const fragmentShaderSource = `
 
   float getDistortionStrength(vec2 dir, float time) {
     float d = length(dir) - time * maxRadius;
-    d *= 1. - smoothstep(0., 0.02, abs(d));
+    d *= 1. - smoothstep(0., 0.05, abs(d));
 
     d *= smoothstep(0., 0.05, time);
     d *= 1. - smoothstep(0.5, 1., time);
