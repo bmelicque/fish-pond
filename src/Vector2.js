@@ -151,7 +151,9 @@ export default class Vec2 {
 	 * @returns
 	 */
 	static sqrDist(a, b) {
-		return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+		const dx = a.x - b.x;
+		const dy = a.y - b.y;
+		return dx * dx + dy * dy;
 	}
 
 	/**

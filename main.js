@@ -21,7 +21,12 @@ const fishes = new Array(100).fill(0).map(() => {
 	};
 });
 
+let lastClick = performance.now();
+const MAX_CLICK_INTERVAL = 167;
 document.getElementById("canvas").addEventListener("click", (e) => {
+	const now = performance.now();
+	if (now - lastClick < MAX_CLICK_INTERVAL) return;
+	lastClick = now;
 	const mouse = new Vec2((e.x * 100) / innerWidth, (e.y * 100) / innerWidth);
 	for (let fish of fishes) {
 		fish.model.fleeFrom(mouse);

@@ -47,7 +47,7 @@ const fragmentShaderSource = `
   void main() {
     vec2 offset;
 
-    for (int i = 0; i < 60; i++) {
+    for (int i = 0; i < 6; i++) {
         offset += getOffset(waves[i].xy, waves[i].z);
     }
 
@@ -174,7 +174,7 @@ export function render(canvas2D) {
 	waves = waves.filter((wave) => wave.duration < 1);
 	const wavesLocation = gl.getUniformLocation(program, "waves");
 	// cannot send an empty array
-	const glWaves = new Array(60 * 3).fill(-1);
+	const glWaves = new Array(6 * 3).fill(-1);
 	for (let i = 0; i < waves.length; i++) {
 		glWaves[3 * i] = waves[i].center.x;
 		glWaves[3 * i + 1] = waves[i].center.y;

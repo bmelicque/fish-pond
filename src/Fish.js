@@ -25,7 +25,7 @@ export class Chunk {
 const DODGE_RADIUS = 15 * NODE_DIST;
 const ALIGN_RADIUS = 1 * DODGE_RADIUS;
 const APPROACH_RADIUS = 1.5 * DODGE_RADIUS;
-const FLEE_RADIUS = 2 * DODGE_RADIUS;
+const FLEE_RADIUS = 3 * DODGE_RADIUS;
 const FLEE_RADIUS_SQR = FLEE_RADIUS ** 2;
 
 const DODGE_FACTOR = 1;
@@ -143,16 +143,6 @@ export class Fish {
 	}
 
 	/**
-	 * Find the closest neighbours to `this` fish
-	 * @returns {Fish[]} a list of neighbours
-	 */
-	#findNeighbours(count = 6) {
-		return Fish.#elements
-			.sort((a, b) => Vec2.sqrDist(this.position, a.position) - Vec2.sqrDist(this.position, b.position))
-			.slice(0, count);
-	}
-
-	/**
 	 * Move the fish according to given constraints
 	 * @param {number} delta how much time has elapsed since the last movement
 	 * @param {Vec2} maxPosition the farthest the fish should go starting from (0,0)
@@ -185,12 +175,12 @@ export class Fish {
 		// #endregion
 
 		// #region adapt to neighboring fishes
-		const neighbours = this.#findNeighbours();
-		for (let i = 1; i < neighbours.length; i++) {
-			const neighbour = neighbours[i];
+		Fish.#elements.sort((a, b) => Vec2.sqrDist(this.position, a.position) - Vec2.sqrDist(this.position, b.position));
+		for (let i = 1; i < 6; i++) {
+			const neighbour = Fish.#elements[i];
 			const diff = Vec2.diff(neighbour.position, this.position);
 			const l = diff.length;
-			const increment = distance * (1 - i / neighbours.length);
+			const increment = distance * (1 - i / 6);
 			if (l < DODGE_RADIUS) {
 				target.add(diff.reverse().resize(DODGE_FACTOR * increment));
 			} else if (l < ALIGN_RADIUS) {
