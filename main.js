@@ -1,5 +1,6 @@
 import { Fish } from "./src/Fish.js";
 import FishElement from "./src/FishElement.js";
+import { PerlinBackground } from "./src/perlin.js";
 import { render, startWave } from "./src/shaders.js";
 import Vec2 from "./src/Vector2.js";
 
@@ -36,6 +37,7 @@ document.addEventListener("visibilitychange", () => {
 
 const frameCanvas = document.createElement("canvas");
 const frameCtx = frameCanvas.getContext("2d");
+const background = new PerlinBackground(Math.random());
 
 /**
  *
@@ -45,6 +47,7 @@ function drawFrame(elapsed) {
 	frameCanvas.height = innerHeight;
 	frameCanvas.width = innerWidth;
 	frameCtx.clearRect(0, 0, innerWidth, innerHeight);
+	frameCtx.putImageData(background.getImageData(), 0, 0);
 
 	for (let fish of fishes) {
 		fish.model.move(elapsed, new Vec2(100, (innerHeight / innerWidth) * 100));
